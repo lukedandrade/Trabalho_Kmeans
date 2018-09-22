@@ -1,4 +1,6 @@
 #Versão inicial do kmeans feito por mim
+
+#Classe representando um cluster. Decisão feita por maior facilidade de trabalhar com objetos.
 class Cluster(object):
 
     def __init__(self, ponto):
@@ -10,7 +12,7 @@ class Cluster(object):
         y = (self.centroide[1] + n_ponto[1])/2
         self.centroide = [x, y]
 
-
+#Método para checagem da menor distância euclidiana, retornando o indíce e ponto.
 def checagem_dist(ponto, lista_pontos):
     aux_index = None
     aux_eud = 0
@@ -49,8 +51,10 @@ def Kmeans(n_grupos, lista_pontos):
         # Obtenção dos primeiros pontos e remoção destes na lista geral.
         lista_organizada.append(Cluster(lista_pontos.pop(indices_r[aux])))
 
+    #len retorna falso caso a lista esteja vazia, e valores estão sendo removidos da mesma através de .pop()
     while len(lista_pontos) != 0:
         for cluster in lista_organizada:
+            #Checagem de menor distância, adição do ponto à lista do cluster e alteração da centroíde do mesmo.
             index, pont = checagem_dist(cluster.centroide, lista_pontos)
             cluster.lista_pontos.append(lista_pontos.pop(index))
             cluster.alt_centroide(pont)

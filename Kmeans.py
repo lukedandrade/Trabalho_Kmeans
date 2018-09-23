@@ -4,8 +4,23 @@
 class Cluster(object):
 
     def __init__(self, ponto):
-        self.lista_pontos = [].append(ponto)
+        self.lista_pontos = []
+        self.lista_pontos.append(ponto)
         self.centroide = ponto
+
+    def __str__(self):
+        ret_str=''
+        for i in self.lista_pontos:
+            ret_str = ret_str+"Ponto %s\n"%(i)
+        ret_str = "Centroide do cluster %s\n"%(self.centroide)+ret_str
+        return ret_str
+
+    def __repr__(self):
+        ret_str = ''
+        for i in self.lista_pontos:
+            ret_str = ret_str + "Ponto %s\n" % (i)
+        ret_str = "Centroide do cluster %s\n" % (self.centroide) + ret_str
+        return ret_str
 
     def alt_centroide(self, n_ponto):
         x = (self.centroide[0] + n_ponto[0])/2

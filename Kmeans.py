@@ -68,14 +68,15 @@ def Kmeans(n_grupos, lista_pontos, min_error, n_iterations):
     from random import sample
     #For para iniciar N listas dentro de uma lista maior, objetivo seria retornar a lista maior contendo N listas
     #internas, representando os clusters.
-    lista_organizada = []
     lista_pontos_og = lista_pontos
     iteration = 0
     while iteration <= n_iterations:
+        # Reset da lista de pontos.
+        lista_pontos = lista_pontos_og
         # Decisão de quais pontos serão os iniciais de forma aleartória, através do index
         indices_r = sample(range(0, len(lista_pontos)), n_grupos)
-        #Reset da lista de pontos.
-        lista_pontos = lista_pontos_og
+        lista_organizada = []
+
         for aux in range(n_grupos):
             # Obtenção dos primeiros pontos e remoção destes na lista geral.
             lista_organizada.append(Cluster(lista_pontos.pop(indices_r[aux])))

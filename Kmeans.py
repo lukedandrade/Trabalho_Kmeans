@@ -1,5 +1,12 @@
 #Versão inicial do kmeans feito por mim
 
+#função receberá duas listas contendo valores representativos de x e y e retorna a distância euclidiana entre eles
+def dist_euclid(ponto_a, ponto_b):
+    dist_x = (ponto_a[0] - ponto_b[0])**2
+    dist_y = (ponto_a[1] - ponto_b[1])**2
+    euclidiana = (dist_x+dist_y)**(1/2)
+    return euclidiana
+
 #Classe representando um cluster. Decisão feita por maior facilidade de trabalhar com objetos.
 class Cluster(object):
 
@@ -7,6 +14,7 @@ class Cluster(object):
         self.lista_pontos = []
         self.lista_pontos.append(ponto)
         self.centroide = ponto
+        self.error = 1
 
     def __str__(self):
         ret_str=''
@@ -27,6 +35,14 @@ class Cluster(object):
         y = (self.centroide[1] + n_ponto[1])/2
         self.centroide = [x, y]
 
+    #calculo para erro total, feito pelo soma de erro quadratico. Definimos erro como sendo a distância entre a centroide e o ponto.
+    def error_check(self):
+        erro_geral = 0
+        for ponto in self.lista_pontos:
+            erro_geral = erro_geral + dist_euclid(self.centroide, ponto)**2
+        self.error = erro_geral
+
+
 #Método para checagem da menor distância euclidiana, retornando o indíce e ponto.
 def checagem_dist(ponto, lista_pontos):
     aux_index = None
@@ -46,32 +62,41 @@ def checagem_dist(ponto, lista_pontos):
     return aux_index, aux_ponto
 
 
-#função receberá duas listas contendo valores representativos de x e y e retorna a distância euclidiana entre eles
-def dist_euclid(ponto_a, ponto_b):
-    dist_x = (ponto_a[0] - ponto_b[0])**2
-    dist_y = (ponto_a[1] - ponto_b[1])**2
-    euclidiana = (dist_x+dist_y)**(1/2)
-    return euclidiana
-
 #Função recebe o número de grupos desejados e lista contendo todos os pontos, em formato de lista ou tupla
-def Kmeans(n_grupos, lista_pontos):
+def Kmeans(n_grupos, lista_pontos, min_error, n_iterations):
     #Decisão de quais pontos serão os iniciais de forma aleartória, através do index
     from random import sample
-    indices_r = sample(range(0, len(lista_pontos)), n_grupos)
-
     #For para iniciar N listas dentro de uma lista maior, objetivo seria retornar a lista maior contendo N listas
     #internas, representando os clusters.
     lista_organizada = []
-    for aux in range(n_grupos):
-        # Obtenção dos primeiros pontos e remoção destes na lista geral.
-        lista_organizada.append(Cluster(lista_pontos.pop(indices_r[aux])))
+    lista_pontos_og = lista_pontos
+    iteration = 0
+    while iteration <= n_iterations:
+        # Decisão de quais pontos serão os iniciais de forma aleartória, através do index
+        indices_r = sample(range(0, len(lista_pontos)), n_grupos)
+        #Reset da lista de pontos.
+        lista_pontos = lista_pontos_og
+        for aux in range(n_grupos):
+            # Obtenção dos primeiros pontos e remoção destes na lista geral.
+            lista_organizada.append(Cluster(lista_pontos.pop(indices_r[aux])))
 
-    #len retorna falso caso a lista esteja vazia, e valores estão sendo removidos da mesma através de .pop()
-    while len(lista_pontos) != 0:
+        #len retorna falso caso a lista esteja vazia, e valores estão sendo removidos da mesma através de .pop()
+        while len(lista_pontos) != 0:
+            for cluster in lista_organizada:
+                #Checagem de menor distância, adição do ponto à lista do cluster e alteração da centroíde do mesmo.
+                index, pont = checagem_dist(cluster.centroide, lista_pontos)
+                cluster.lista_pontos.append(lista_pontos.pop(index))
+                cluster.alt_centroide(pont)
+
+        aux_bool = True
         for cluster in lista_organizada:
-            #Checagem de menor distância, adição do ponto à lista do cluster e alteração da centroíde do mesmo.
-            index, pont = checagem_dist(cluster.centroide, lista_pontos)
-            cluster.lista_pontos.append(lista_pontos.pop(index))
-            cluster.alt_centroide(pont)
+            #Checagem de erro em cada cluster
+            cluster.error_check()
+            aux_bool = aux_bool and (cluster.error <= min_error)
+
+        if aux_bool:
+            break
+
+        iteration += 1
 
     return lista_organizada
